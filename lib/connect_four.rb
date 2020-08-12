@@ -15,6 +15,13 @@
 class Player
 end
 
+class Chip
+  def initialize(symbol, location)
+    @symbol = symbol
+    @top = top
+    @left = left
+  end
+end
 
 
 class Game
@@ -24,15 +31,22 @@ class Game
   end
 
   def make_board
-    Array.new(8, Array.new(8, 'X'))
+    hash = Hash.new
+    for i in 0..7
+      hash[i] = Array.new(8, 'x')
+    end
+    hash
   end
 
   def display_board
-    board.each do |ary|
-      puts ary.join(' ')
+    board.each do |key, value|
+      puts value.join(' ')
     end
   end
 end
 
 game = Game.new
+p game.board
+
+game.board[3][1] = 'O'
 game.display_board
