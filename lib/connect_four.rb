@@ -23,19 +23,20 @@ class Player
 
   def play_turn(board)
     puts "Where do you want to play?"
-    column = gets.chomp.strip.to_i
+    column = gets.chomp.strip.to_i - 1
     spot = find_first_available(board, column)
     chip = Chip.new(color)
     board[spot][column] = chip.symbol
+    play_log << chip.dup
   end
   
-  def find_first_available(board, column)
-    return 7 if board[7][column - 1] == 'x'
-    counter = 0
-    current = board[counter][column - 1]
+  def find_first_available(board, column, counter = 0)
+    return 7 if board[7][column] == 'x'
+    play_turn if board[0][column] != 'x'
+    current = board[counter][column]
     while current == 'x' && counter < 7
       counter += 1
-      current = board[counter][column - 1]
+      current = board[counter][column]
     end
     counter - 1
   end
@@ -88,7 +89,7 @@ class Game < Player
 
   def display_board
     board.each do |key, value|
-      puts value.join(' ')
+      puts value.join('  ')
     end
   end
 
@@ -104,13 +105,20 @@ class Game < Player
       end
     end
   end
-  
+
   def test
-    p display_board
-    @player1.play_turn(@board)
-    p display_board
+    display_board
+    @player1.play_turn(board)
+    display_board
+    @player2.play_turn(board)
+    display_board
+    @player1.play_turn(board)
+    display_board
+    @player2.play_turn(board)
+    display_board
   end
 end
 
 game = Game.new
-p game.test
+
+game.test
