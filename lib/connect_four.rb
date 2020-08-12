@@ -11,23 +11,71 @@
 # if all 8 arrays on the board are full, declare the game a cat
 
 # Prompt a player to select where to play
-
+require 'pry'
 class Player
+  attr_accessor :play_log, :color
+
+  def initialize(color)
+    @play_log = []
+    @name = gets.chomp.strip
+    @color = color
+  end
+
+  def play_turn(board)
+    puts "Where do you want to play?"
+    column = gets.chomp.strip.to_i
+    spot = find_first_available(board, column)
+    chip = Chip.new(color)
+    board[spot][column] = chip.symbol
+  end
+  
+  def find_first_available(board, column)
+    return 7 if board[7][column - 1] == 'x'
+    counter = 0
+    current = board[counter][column - 1]
+    while current == 'x' && counter < 7
+      counter += 1
+      current = board[counter][column - 1]
+    end
+    counter - 1
+  end
+
+
 end
 
-class Chip
-  def initialize(symbol, location)
+class Chip < Player
+  attr_accessor :symbol, :top, :left, :right, :tl, :tr
+  def initialize(symbol)
     @symbol = symbol
-    @top = top
-    @left = left
+    @top = nil
+    @left = nil
+    @right = nil
+    @tl = nil
+    @tr = nil
   end
 end
 
 
-class Game
+class Game < Player
   attr_accessor :board
   def initialize
     @board = make_board
+    get_players
+  end
+
+  def get_players
+    puts "Player 1 name"
+    @player1 = Player.new('1')
+    puts "Player 2 name"
+    @player2 = Player.new('2')
+  end
+
+  def assign_network(chip, location)
+    chip.top =   board[location[0] - 1][location[1]]
+    chip.left =  board[location[0]][location[1] - 1]
+    chip.right = board[location[0]][location[1] + 1]
+    chip.tl =    board[location[0] - 1][location[1] - 1]
+    chip.tr =    board[location[0] - 1][location[1] + 1]
   end
 
   def make_board
@@ -43,10 +91,26 @@ class Game
       puts value.join(' ')
     end
   end
+
+  def winner?(counter = 0)
+    play_log.each do |chip|
+      directions = [left, right, top, tl, tr]
+      directions.each do |direction|
+        until !play_log.include?(chip.direction)
+          chip = chip.direction
+          counter += 1
+        end
+        return true if counter >= 4
+      end
+    end
+  end
+  
+  def test
+    p display_board
+    @player1.play_turn(@board)
+    p display_board
+  end
 end
 
 game = Game.new
-p game.board
-
-game.board[3][1] = 'O'
-game.display_board
+p game.test
