@@ -26,46 +26,22 @@ class Player
     column = gets.chomp.strip.to_i - 1
     spot = find_first_available(board, column)
     location = [spot, column]
-    chip = Chip.new(color, location)
-    board[spot][column] = chip.symbol
-    # assign_network(chip, [spot, column], board)
+    chip = Chip.new(color, location, board)
+    board[spot][column] = chip.dup
     play_log << chip.dup
   end
   
   def find_first_available(board, column, counter = 0)
-    return 7 if board[7][column] == 'x'
-    play_turn if board[0][column] != 'x'
+    return 7 if board[7][column] == 'x  '
+    play_turn if board[0][column] != 'x  '
     current = board[counter][column]
-    while current == 'x' && counter < 7
+    while current == 'x  ' && counter < 7
       counter += 1
       current = board[counter][column]
     end
     counter - 1
   end
-
-  # def assign_network(chip, location, board)
-  #   chip.top =   board[location[0] - 1][location[1]]
-  #   chip.left =  board[location[0]][location[1] - 1]
-  #   chip.right = board[location[0]][location[1] + 1]
-  #   chip.tl =    board[location[0] - 1][location[1] - 1]
-  #   chip.tr =    board[location[0] - 1][location[1] + 1]
-  # end
 end
-
-class Chip < Player
-  attr_accessor :symbol, :top, :left, :right, :tl, :tr, :location
-
-  def initialize(symbol, location)
-    @symbol = symbol
-    @location = location
-    @top = [location[0] - 1, location[1]]
-    @left = [location[0], location[1] - 1]
-    @right = [location[0], location[1] + 1]
-    @tl = [location[0] - 1, location[1] - 1]
-    @tr = [location[0] - 1, location[1] + 1]
-  end
-end
-
 
 class Game < Player
   attr_accessor :board
@@ -75,33 +51,39 @@ class Game < Player
   end
 
   def get_players
-    puts "Player 1 name"
+    puts 'Player 1 name'
     @player1 = Player.new('1')
-    puts "Player 2 name"
+    puts 'Player 2 name'
     @player2 = Player.new('2')
   end
 
   def make_board
     hash = Hash.new
     for i in 0..7
-      hash[i] = Array.new(8, 'x')
+      hash[i] = Array.new(8, 'x  ')
     end
     hash
   end
 
   def display_board
     board.each do |key, value|
-      puts value.join('  ')
+      puts
+      value.each do |chip|
+        chip == 'x  ' ? (print chip) : (print chip.symbol + '  ')
+      end
     end
+    puts
   end
 
-  def winner?(counter = 1, log, piece)
+  def winner?(log, piece)
     return false if log.empty?
     log.each do |chip|
-      directions = [chip.left, chip.right, chip.top, chip.tl, chip.tr]
+      directions = ['left', 'right', 'top', 'tl', 'tr']
       directions.each do |direction|
-        until board[direction[0]][direction[1]] != piece
-          chip = board[direction[0]][direction[1]]
+        counter = 1
+        current = chip.send(direction.to_sym)
+        until current == 'x  '|| current.symbol != piece
+          current = current.send(direction.to_sym)
           counter += 1
         end
         return true if counter >= 4
@@ -123,6 +105,35 @@ class Game < Player
   end
 end
 
-game = Game.new
+class Chip < Game
+  attr_accessor :symbol, :location, :board
 
+  def initialize(symbol, location, board)
+    @symbol = symbol
+    @location = location
+    @board = board
+  end
+
+  def top
+    board[location[0] - 1][location[1]]
+  end
+
+  def left
+    board[location[0]][location[1] - 1]
+  end
+
+  def right
+    board[location[0]][location[1] + 1]
+  end
+
+  def tl
+    board[location[0] - 1][location[1] - 1]
+  end
+
+  def tr
+    board[location[0] - 1][location[1] + 1]
+  end
+end
+
+game = Game.new
 game.play_game
