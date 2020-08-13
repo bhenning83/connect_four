@@ -93,14 +93,14 @@ class Game < Player
   end
 
   def play_game
-    until winner?(@player1.play_log, @player1.color) || winner?(@player2.play_log, @player2.color)
+    64.times do
       display_board 
       @player1.play_turn(@board)
       display_board
-      winner?(@player1.play_log, @player1.color)
+      break if winner?(@player1.play_log, @player1.color)
       @player2.play_turn(@board)
       display_board
-      winner?(@player2.play_log, @player2.color)
+      break if winner?(@player2.play_log, @player2.color)
     end
   end
 end
