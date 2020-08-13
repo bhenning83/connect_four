@@ -1,6 +1,6 @@
 require 'pry'
 class Player
-  attr_accessor :play_log, :color
+  attr_accessor :play_log, :color, :name
 
   def initialize(color)
     @play_log = []
@@ -9,7 +9,7 @@ class Player
   end
 
   def play_turn(board)
-    puts "#{@name}, where do you want to play?"
+    puts "#{name}, where do you want to play?"
     column = gets.chomp.strip.to_i - 1
     spot = find_first_available(board, column)
     location = [spot, column]
@@ -86,11 +86,21 @@ class Game < Player
       display_board 
       @player1.play_turn(@board)
       display_board
-      break if winner?(@player1.play_log, @player1.color)
+      if winner?(@player1.play_log, @player1.color)
+        winner_message(@player1)
+        break
+      end
       @player2.play_turn(@board)
       display_board
-      break if winner?(@player2.play_log, @player2.color)
+      if winner?(@player2.play_log, @player2.color)
+        winner_message(@player2)
+        break
+      end
     end
+  end
+
+  def winner_message(player)
+    puts "#{player.name} wins!"
   end
 end
 
