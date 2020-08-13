@@ -1,16 +1,3 @@
-# create a player class 
-#   each player should have an empty array play_log
-#   each player has  a unique play piece
-
-# create a Node class that accepts x-y coordinates as an argument
-#   check that new nodes are on an 8x8 board
-#   run through the indexes of that column until a nil is reached
-#     the node should be created just about that
-#     It's siblings (adjacent positions) should be declared
-# After each turn (node creation) check each primary direction of each node for four consecutive nodes
-# if all 8 arrays on the board are full, declare the game a cat
-
-# Prompt a player to select where to play
 require 'pry'
 class Player
   attr_accessor :play_log, :color
@@ -22,7 +9,7 @@ class Player
   end
 
   def play_turn(board)
-    puts "Where do you want to play?"
+    puts "#{@name}, where do you want to play?"
     column = gets.chomp.strip.to_i - 1
     spot = find_first_available(board, column)
     location = [spot, column]
@@ -33,7 +20,7 @@ class Player
   
   def find_first_available(board, column, counter = 0)
     return 7 if board[7][column] == 'x  '
-    play_turn if board[0][column] != 'x  '
+    play_turn(board) if board[0][column] != 'x  '
     current = board[counter][column]
     while current == 'x  ' && counter < 7
       counter += 1
@@ -66,6 +53,7 @@ class Game < Player
   end
 
   def display_board
+    puts "\n\n1  2  3  4  5  6  7  8"
     board.each do |key, value|
       puts
       value.each do |chip|
@@ -82,6 +70,7 @@ class Game < Player
       directions.each do |direction|
         counter = 1
         current = chip.send(direction.to_sym)
+        next if current.nil?
         until current == 'x  '|| current.symbol != piece
           current = current.send(direction.to_sym)
           counter += 1
