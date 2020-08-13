@@ -12,6 +12,7 @@ class Player
     puts "#{name}, where do you want to play?"
     column = gets.chomp.strip.to_i - 1 until valid?(column)
     spot = find_first_available(board, column)
+    return if spot.nil?
     location = [spot, column]
     chip = Chip.new(color, location, board)
     board[spot][column] = chip.dup
@@ -29,8 +30,9 @@ class Player
 
     if board[0][column] != 'x  ' #prevents play above top row
       play_turn(board)
-      return
+      return nil
     end
+
     current = board[counter][column]
     while current == 'x  ' && counter < 7 #traverses downward until a spot isn't empty
       counter += 1
@@ -50,6 +52,7 @@ class Chip
   end
 
   def top
+    return nil if location[0] == 0
     board[location[0] - 1][location[1]]
   end
 
@@ -62,10 +65,13 @@ class Chip
   end
 
   def tl
+    return nil if location[0] == 0
+
     board[location[0] - 1][location[1] - 1]
   end
 
   def tr
+    return nil if location[0] == 0
     board[location[0] - 1][location[1] + 1]
   end
 end
