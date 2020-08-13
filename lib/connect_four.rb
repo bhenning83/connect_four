@@ -25,8 +25,10 @@ class Player
     puts "Where do you want to play?"
     column = gets.chomp.strip.to_i - 1
     spot = find_first_available(board, column)
-    chip = Chip.new(color)
+    location = [spot, column]
+    chip = Chip.new(color, location)
     board[spot][column] = chip.symbol
+    # assign_network(chip, [spot, column], board)
     play_log << chip.dup
   end
   
@@ -41,18 +43,26 @@ class Player
     counter - 1
   end
 
-
+  # def assign_network(chip, location, board)
+  #   chip.top =   board[location[0] - 1][location[1]]
+  #   chip.left =  board[location[0]][location[1] - 1]
+  #   chip.right = board[location[0]][location[1] + 1]
+  #   chip.tl =    board[location[0] - 1][location[1] - 1]
+  #   chip.tr =    board[location[0] - 1][location[1] + 1]
+  # end
 end
 
 class Chip < Player
-  attr_accessor :symbol, :top, :left, :right, :tl, :tr
-  def initialize(symbol)
+  attr_accessor :symbol, :top, :left, :right, :tl, :tr, :location
+
+  def initialize(symbol, location)
     @symbol = symbol
-    @top = nil
-    @left = nil
-    @right = nil
-    @tl = nil
-    @tr = nil
+    @location = location
+    @top = [location[0] - 1, location[1]]
+    @left = [location[0], location[1] - 1]
+    @right = [location[0], location[1] + 1]
+    @tl = [location[0] - 1, location[1] - 1]
+    @tr = [location[0] - 1, location[1] + 1]
   end
 end
 
@@ -71,14 +81,6 @@ class Game < Player
     @player2 = Player.new('2')
   end
 
-  def assign_network(chip, location)
-    chip.top =   board[location[0] - 1][location[1]]
-    chip.left =  board[location[0]][location[1] - 1]
-    chip.right = board[location[0]][location[1] + 1]
-    chip.tl =    board[location[0] - 1][location[1] - 1]
-    chip.tr =    board[location[0] - 1][location[1] + 1]
-  end
-
   def make_board
     hash = Hash.new
     for i in 0..7
@@ -93,32 +95,34 @@ class Game < Player
     end
   end
 
-  def winner?(counter = 0)
-    play_log.each do |chip|
-      directions = [left, right, top, tl, tr]
+  def winner?(counter = 1, log, piece)
+    return false if log.empty?
+    log.each do |chip|
+      directions = [chip.left, chip.right, chip.top, chip.tl, chip.tr]
       directions.each do |direction|
-        until !play_log.include?(chip.direction)
-          chip = chip.direction
+        until board[direction[0]][direction[1]] != piece
+          chip = board[direction[0]][direction[1]]
           counter += 1
         end
         return true if counter >= 4
       end
     end
+    false
   end
 
-  def test
-    display_board
-    @player1.play_turn(board)
-    display_board
-    @player2.play_turn(board)
-    display_board
-    @player1.play_turn(board)
-    display_board
-    @player2.play_turn(board)
-    display_board
+  def play_game
+    until winner?(@player1.play_log, @player1.color) || winner?(@player2.play_log, @player2.color)
+      display_board 
+      @player1.play_turn(@board)
+      display_board
+      winner?(@player1.play_log, @player1.color)
+      @player2.play_turn(@board)
+      display_board
+      winner?(@player2.play_log, @player2.color)
+    end
   end
 end
 
 game = Game.new
 
-game.test
+game.play_game
