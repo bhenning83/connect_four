@@ -1,3 +1,4 @@
+require 'pry'
 class Player
   attr_accessor :play_log, :color, :name
 
@@ -9,7 +10,7 @@ class Player
 
   def play_turn(board)
     puts "#{name}, where do you want to play?"
-    column = gets.chomp.strip.to_i - 1
+    column = gets.chomp.strip.to_i - 1 until valid?(column)
     spot = find_first_available(board, column)
     location = [spot, column]
     chip = Chip.new(color, location, board)
@@ -17,12 +18,21 @@ class Player
     play_log << chip.dup
   end
 
-  def find_first_available(board, column, counter = 0)
-    return 7 if board[7][column] == 'x  '
+  def valid?(num)
+    return false if num.nil?
+    
+    num >= 0 && num < 8
+  end
 
-    play_turn(board) if board[0][column] != 'x  '
+  def find_first_available(board, column, counter = 0)
+    return 7 if board[7][column] == 'x  ' #if column is empty
+
+    if board[0][column] != 'x  ' #prevents play above top row
+      play_turn(board)
+      return
+    end
     current = board[counter][column]
-    while current == 'x  ' && counter < 7
+    while current == 'x  ' && counter < 7 #traverses downward until a spot isn't empty
       counter += 1
       current = board[counter][column]
     end
