@@ -1,4 +1,4 @@
-require 'pry'
+#creates players for the game
 class Player
   attr_accessor :play_log, :color, :name
 
@@ -26,15 +26,15 @@ class Player
   end
 
   def find_first_available(board, column, counter = 0)
-    return 7 if board[7][column] == 'x  ' #if column is empty
+    return 7 if board[7][column] == '◯   ' #if column is empty
 
-    if board[0][column] != 'x  ' #prevents play above top row
+    if board[0][column] != '◯   ' #prevents play above top row
       play_turn(board)
       return nil
     end
 
     current = board[counter][column]
-    while current == 'x  ' && counter < 7 #traverses downward until a spot isn't empty
+    while current == '◯   ' && counter < 7 #traverses downward until a spot isn't empty
       counter += 1
       current = board[counter][column]
     end
@@ -42,6 +42,7 @@ class Player
   end
 end
 
+#marks where player played
 class Chip
   attr_accessor :symbol, :location, :board
 
@@ -57,10 +58,12 @@ class Chip
   end
 
   def left
+    return nil if location[1] == 0
     board[location[0]][location[1] - 1]
   end
 
   def right
+    return nil if location[1] == 7
     board[location[0]][location[1] + 1]
   end
 
@@ -76,6 +79,7 @@ class Chip
   end
 end
 
+#core methods for the game
 class Game < Player
   attr_accessor :board
   def initialize
@@ -85,31 +89,32 @@ class Game < Player
 
   def get_players
     puts 'Player 1 name'
-    @player1 = Player.new('1')
+    @player1 = Player.new('⚪')
     puts 'Player 2 name'
-    @player2 = Player.new('2')
+    @player2 = Player.new('⚫')
   end
 
   def make_board
     hash = {}
     (0..7).each do |i|
-      hash[i] = Array.new(8, 'x  ')
+      hash[i] = Array.new(8, '◯   ')
     end
     hash
   end
 
   def display_board
-    puts "\n\n1  2  3  4  5  6  7  8"
+    puts "\n\n1   2   3   4   5   6   7   8"
     board.each do |_key, value|
       puts
       value.each do |chip|
-        chip == 'x  ' ? (print chip) : (print chip.symbol + '  ')
+        chip == '◯   ' ? (print chip) : (print chip.symbol + '  ')
       end
+      puts
     end
     puts
   end
 
-  def winner?(log, piece)
+  def winner?(log, piece) #checks each direciton on every chip for 4 straight 
     return false if log.empty?
 
     log.each do |chip|
@@ -119,7 +124,7 @@ class Game < Player
         current = chip.send(direction.to_sym)
         next if current.nil?
 
-        until current == 'x  ' || current.symbol != piece
+        until current == '◯   ' || current.nil? || current.symbol != piece
           current = current.send(direction.to_sym)
           counter += 1
         end
@@ -130,7 +135,7 @@ class Game < Player
   end
 
   def play_game
-    64.times do
+    64.times do #total spaces on the board
       display_board
       @player1.play_turn(@board)
       display_board
@@ -145,10 +150,12 @@ class Game < Player
         break
       end
     end
+    puts "Cat game."
   end
 
   def winner_message(player)
     puts "#{player.name} wins!"
+    exit
   end
 end
 

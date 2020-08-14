@@ -18,7 +18,7 @@ end
 
 describe Game do
   describe "#make_board" do
-    it "creates an array of 8 arrays" do
+    it "creates a hash of 8 arrays" do
       game = Game.new
       game.make_board
       expect(board.length).to eql(8)
