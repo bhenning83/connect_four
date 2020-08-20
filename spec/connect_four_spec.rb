@@ -1,46 +1,29 @@
 require './lib/connect_four.rb'
+
 describe Player do
-  describe "#play_turn" do
-    it "creates a node at the first availble spot in the column" do
-      player = Player.new
-      node = Node.new(7, 1)
-      player.play_turn(7).to eql(node)
-    end
-
-    it "creates a node at the first availble spot in the column" do
-      player = Player.new
-      combined_play_log = [Node.new(7, 1), Node.new(7, 2)]
-      node = Node.new(7, 3)
-      player.play_turn(7).to eql(node)
-    end
+  before(:each) do
+    @player = Player.new('black')
+    @game = Game.new
+    @board = @game.make_board
   end
-end
-
-describe Game do
-  describe "#make_board" do
-    it "creates a hash of 8 arrays" do
-      game = Game.new
-      game.make_board
-      expect(board.length).to eql(8)
+  context '#valid?' do
+    it 'returns false if input us nil' do
+      expect(@player.valid?(nil)).to be(false)
     end
 
-    it "rows 1-8 should be an array of 8 X's" do
-      game = Game.new
-      game.make_board
-      combined_play_log = []
-      row = Array.new(8, "X")
-      expect(board[1]).to eql(row)
+    it 'returns true if input is between 0 and 8' do
+      expect(@player.valid?(4)).to be(true)
+    end
+
+    it 'returns false if input is greater than 7' do
+      expect(@player.valid?(8)).to be(false)
     end
   end
 
-  describe "#display_board" do
-    it "accurately displays where a player played" do
-      game = Game.new
-      game.make_board
-      game.display_board
-      combined_play_log = []
-      row = Array.new(9, nil)
-      expect(board[1]).to eql()
+  context '#find_first_available' do
+    it 'returns 7 if the column is empty' do
+      column = 5
+      expect(@player.find_first_available(@board, column)).to eql(7)
     end
   end
 end

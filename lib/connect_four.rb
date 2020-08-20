@@ -84,7 +84,6 @@ class Game < Player
   attr_accessor :board
   def initialize
     @board = make_board
-    get_players
   end
 
   def get_players
@@ -135,7 +134,7 @@ class Game < Player
   end
 
   def play_game
-    64.times do #total spaces on the board
+    32.times do #total spaces on the board
       display_board
       @player1.play_turn(@board)
       display_board
@@ -158,8 +157,3 @@ class Game < Player
     exit
   end
 end
-
-
-
-game = Game.new
-game.play_game
